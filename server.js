@@ -5,7 +5,7 @@ const url  = require('url');
 const fs = require('fs');
 const telegramConfig = JSON.parse(fs.readFileSync('telegram_config.json', 'utf8'));
 const hostname = '127.0.0.1';
-const port = 80;
+const port = 8080;
 
 const server = http.createServer((req, res) => {
 
