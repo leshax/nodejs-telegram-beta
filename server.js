@@ -1,14 +1,11 @@
 const http = require('http');
 const https = require('https');
-var qs = require('querystring');
-var url  = require('url');
-var fs = require('fs');
-var telegramConfig = JSON.parse(fs.readFileSync('telegram_config.json', 'utf8'));
-
+const qs = require('querystring');
+const url  = require('url');
+const fs = require('fs');
+const telegramConfig = JSON.parse(fs.readFileSync('telegram_config.json', 'utf8'));
 const hostname = '127.0.0.1';
-const port = 3000;
-
-
+const port = 80;
 
 const server = http.createServer((req, res) => {
 
