@@ -9,8 +9,12 @@ const port = 8080;
 var lastTimeUpdated = new Date();
 
 const server = http.createServer((req, res) => {
-	console.log("Home");
-	console.log(req.url);
+
+	if(req.url.indexOf('/updatetime/') == 0){	
+		lastTimeUpdated = new Date();
+		res.end('Time Updated');
+	}
+	
 	if(req.url.indexOf('/post/') == 0){
 		var json = createJson(req);
 		var msg = getMessageForTelegram(json);
@@ -20,9 +24,6 @@ const server = http.createServer((req, res) => {
 		console.log("0. JSON = " + json);	
 		if(json){
 			console.log("1. JSON = " + json);
-			console.log("Old time: " + lastTimeUpdated);
-			lastTimeUpdated = new Date();
-			console.log("New time: " + lastTimeUpdated);
 			https.get(url, (resp) => { 				
 				let data = '';
 				resp.on('data', (chunk) => {
@@ -58,7 +59,7 @@ const server = http.createServer((req, res) => {
 		//res.setHeader('Content-Type', 'text/plain');
 		res.end(str);
 	}
-	console.log("MSG:" + json);
+	
  
   res.statusCode = 200;
   //res.setHeader('Content-Type', 'text/plain');
