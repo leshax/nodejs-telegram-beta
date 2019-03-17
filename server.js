@@ -6,6 +6,7 @@ const fs = require('fs');
 const telegramConfig = JSON.parse(fs.readFileSync('telegram_config.json', 'utf8'));
 const hostname = '127.0.0.1';
 const port = 8080;
+var lastTimeUpdated = new Date();
 
 const server = http.createServer((req, res) => {
 
@@ -14,25 +15,48 @@ const server = http.createServer((req, res) => {
 	var chatId = telegramConfig.chatId;
 	var botId = telegramConfig.botId;
 	var url = "https://api.telegram.org/bot"+botId+"/sendMessage?chat_id="+chatId+"&text="+msg;
-	
-	https.get(url, (resp) => { 
-		let data = '';
-		resp.on('data', (chunk) => {
-			data += chunk;
+	console.log("0. JSON = " + json);
+	if(json){
+		console.log("1. JSON = " + json);
+		lastTimeUpdated = new Date();
+		https.get(url, (resp) => { 
+			let data = '';
+			resp.on('data', (chunk) => {
+				data += chunk;
+			});
+			resp.on('end', () => {
+				console.log(JSON.parse(data).explanation);
+			});
+			resp.on("error", (err) => {
+				console.log("Error: " + err.message);
+			});
+			
 		});
-		resp.on('end', () => {
-			console.log(JSON.parse(data).explanation);
-		});
-		resp.on("error", (err) => {
-			console.log("Error: " + err.message);
-		});
+	}
+	var url1 = req.url;
+	console.log(url1);
+    if(url1 == '/status/'){
 		
-	});
+		function millisToMinutesAndSeconds(millis) {
+		  var minutes = Math.floor(millis / 60000);
+		  var seconds = ((millis % 60000) / 1000).toFixed(0);
+		  return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+		}	
 		
+		var mili = (new Date().getTime() - lastTimeUpdated.getTime());
+		var value = millisToMinutesAndSeconds(mili);
+		var online = Math.floor(mili / 60000) > 1 ? "Offline" : "Online";
+		var str = "Last update: " + value + " ago. " + "Telegram bot is: " + online;
+		
+		
+		res.statusCode = 200;
+		//res.setHeader('Content-Type', 'text/plain');
+		res.end(str);
+	}
 	console.log("MSG:" + json);
  
   res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
+  //res.setHeader('Content-Type', 'text/plain');
   res.end('Hello World\n');
 }).listen(8080);
 
@@ -61,7 +85,6 @@ function createJson(req){
 		console.log("json: " + json);
 		return json;
 	} catch(e) {
-		console.log(e);
 		console.log("Error parsing a json");
 	}
 }
