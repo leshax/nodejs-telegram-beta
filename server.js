@@ -9,33 +9,36 @@ const port = 8080;
 var lastTimeUpdated = new Date();
 
 const server = http.createServer((req, res) => {
-
-	var json = createJson(req);
-	var msg = getMessageForTelegram(json);
-	var chatId = telegramConfig.chatId;
-	var botId = telegramConfig.botId;
-	var url = "https://api.telegram.org/bot"+botId+"/sendMessage?chat_id="+chatId+"&text="+msg;
-	console.log("0. JSON = " + json);
-	if(json){
-		console.log("1. JSON = " + json);
-		lastTimeUpdated = new Date();
-		https.get(url, (resp) => { 
-			let data = '';
-			resp.on('data', (chunk) => {
-				data += chunk;
+	console.log("Home");
+	console.log(req.url);
+	if(req.url.indexOf('/post/') == 0){
+		var json = createJson(req);
+		var msg = getMessageForTelegram(json);
+		var chatId = telegramConfig.chatId;
+		var botId = telegramConfig.botId;
+		var url = "https://api.telegram.org/bot"+botId+"/sendMessage?chat_id="+chatId+"&text="+msg;
+		console.log("0. JSON = " + json);	
+		if(json){
+			console.log("1. JSON = " + json);
+			console.log("Old time: " + lastTimeUpdated);
+			lastTimeUpdated = new Date();
+			console.log("New time: " + lastTimeUpdated);
+			https.get(url, (resp) => { 				
+				let data = '';
+				resp.on('data', (chunk) => {
+					data += chunk;
+				});
+				resp.on('end', () => {
+					console.log(JSON.parse(data).explanation);
+				});
+				resp.on("error", (err) => {
+					console.log("Error: " + err.message);
+				});				
 			});
-			resp.on('end', () => {
-				console.log(JSON.parse(data).explanation);
-			});
-			resp.on("error", (err) => {
-				console.log("Error: " + err.message);
-			});
-			
-		});
+		}
 	}
-	var url1 = req.url;
-	console.log(url1);
-    if(url1 == '/status/'){
+	
+    if(req.url == '/status/'){
 		
 		function millisToMinutesAndSeconds(millis) {
 		  var minutes = Math.floor(millis / 60000);
@@ -43,10 +46,12 @@ const server = http.createServer((req, res) => {
 		  return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
 		}	
 		
+		
+		
 		var mili = (new Date().getTime() - lastTimeUpdated.getTime());
 		var value = millisToMinutesAndSeconds(mili);
 		var online = Math.floor(mili / 60000) > 1 ? "Offline" : "Online";
-		var str = "Last update: " + value + " ago. " + "Telegram bot is: " + online;
+		var str = "Last update: " + value + " ago. " + "Telegram bot is: " + online + " DEBUG: LastTime: " + lastTimeUpdated.toString();
 		
 		
 		res.statusCode = 200;
@@ -57,7 +62,7 @@ const server = http.createServer((req, res) => {
  
   res.statusCode = 200;
   //res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World\n');
+  res.end('Hello World2\n');
 }).listen(8080);
 
 
@@ -76,7 +81,7 @@ function getMessageForTelegram(json) {
 }
 function createJson(req){
 	try{		
-		var str = url.parse(req.url).path.replace('/', "");
+		var str = url.parse(req.url).path.replace('/post/', "");
 		console.log("STR: " + str);	
 		var q = qs.unescape(str);
 		console.log("Q: " + q);

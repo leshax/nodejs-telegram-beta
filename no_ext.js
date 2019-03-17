@@ -3,7 +3,6 @@ function getNewItems(){
 	var items = document.querySelectorAll("#bets-listview .item");
 	var json = null;
 	for(var i=0; i<items.length; i++) {
-		
 		var item = items[i];
 		var idAttr = item.getAttribute("data-key");
 		if(localStorage.getItem(idAttr)) continue;
@@ -35,11 +34,12 @@ function sendRequest(json) {
 	var str = JSON.stringify(json);
 	console.log("str", str);	
 	var s = document.createElement("script");
-	s.src = "http://localhost:3000/" + str;
+	s.src = "https://lofty-bolt-234212.appspot.com/post/" + str;
+	//s.src = "http://localhost:8080/post/" + str;
 	document.body.appendChild(s);
 }
 sendRequest(getNewItems());
-setTimeout(function() { location.reload() }, 10000);
+setTimeout(function() { location.reload() }, 5000);
 
 
 
