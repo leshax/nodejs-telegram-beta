@@ -16,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/leshax/nodejs-telegram-beta/issues"
   },
-  "homepage": "https://github.com/leshax/nodejs-telegram-beta#readme"
+  "homepage": "https://github.com/leshax/nodejs-telegram-beta#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "nodemon": "^1.18.10"
+  }
 }

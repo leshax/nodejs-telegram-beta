@@ -8,21 +8,34 @@ const hostname = '127.0.0.1';
 const port = 8080;
 var lastTimeUpdated = new Date();
 
-const server = http.createServer((req, res) => {
 
-	if(req.url.indexOf('/updatetime/') == 0){	
-		lastTimeUpdated = new Date();
-		res.end('Time Updated');
-	}
-	
-	if(req.url.indexOf('/post/') == 0){
-		var json = createJson(req);
-		var msg = getMessageForTelegram(json);
-		var chatId = telegramConfig.chatId;
-		var botId = telegramConfig.botId;
-		var url = "https://api.telegram.org/bot"+botId+"/sendMessage?chat_id="+chatId+"&text="+msg;
-		console.log("0. JSON = " + json);	
-		if(json){
+const express = require('express');
+const bodyParser = require('body-parser');
+const app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
+
+
+
+app.get('/', function(req, res) {
+	console.log('Home');
+	res.send('Hello World! 8080')
+});
+app.get('/post', async function(req, res){
+	console.log('POST');
+	 let json = JSON.parse(Object.keys(req.query)[0]);
+	 //let parsed = JSON.parse(json);
+	 console.log(json);
+	 var msg = getMessageForTelegram(json);
+	 var chatId = telegramConfig.chatId;
+	 var botId = telegramConfig.botId;
+	 var url = "https://api.telegram.org/bot"+botId+"/sendMessage?chat_id="+chatId+"&text="+msg;
+	 
+
+	if(json){
 			console.log("1. JSON = " + json);
 			https.get(url, (resp) => { 				
 				let data = '';
@@ -37,37 +50,19 @@ const server = http.createServer((req, res) => {
 				});				
 			});
 		}
-	}
-	
-    if(req.url == '/status/'){
-		
-		function millisToMinutesAndSeconds(millis) {
-		  var minutes = Math.floor(millis / 60000);
-		  var seconds = ((millis % 60000) / 1000).toFixed(0);
-		  return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
-		}	
-		
-		
-		
-		var mili = (new Date().getTime() - lastTimeUpdated.getTime());
-		var value = millisToMinutesAndSeconds(mili);
-		var online = Math.floor(mili / 60000) > 1 ? "Offline" : "Online";
-		var str = "Last update: " + value + " ago. " + "Telegram bot is: " + online + " DEBUG: LastTime: " + lastTimeUpdated.toString();
-		
-		
-		res.statusCode = 200;
-		//res.setHeader('Content-Type', 'text/plain');
-		res.end(str);
-	}
-	
- 
-  res.statusCode = 200;
-  //res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World2\n');
-}).listen(8080);
 
+
+	 res.status(200).send();
+});
+
+
+app.listen(8080, () => console.log('Express server is listening on port 8080'));
 
 function getMessageForTelegram(json) {
+	//console.log(JSON.parse(JSON.stringify(json)));
+	//console.log(Object.keys(json));
+	//for(var i=0; i<json)
+	
 	try {
 		var message = "";
 		Object.keys(json).forEach(function(key,index) {
